@@ -1,5 +1,6 @@
 import os
 import yaml
+import socket
 
 from flask import Flask
 from flask_cors import CORS
@@ -17,13 +18,15 @@ with open(os.path.join(os.path.dirname(__file__), 'config.yml'), encoding='utf-8
 
 @app.route('/')
 def home():
+    """Sanity check"""
     return 'hello world'
 
 # Register the TableCounter view, counting rows in a table, request = /api/table-count?table=<<some table name>>
 app.add_url_rule(rule='/api/table-count', view_func=TableCounter.as_view('table-counter'))
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
+    print('HOST FQDN: {}'.format(socket.getfqdn()))
     app.run(host='0.0.0.0',
             port=config.get('SITE_CONFIG', {}).get('PORT', 5555),
             debug=False,

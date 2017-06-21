@@ -1,0 +1,18 @@
+<div>
+    <h2>Count</h2>
+    <div id="row-count"></div>
+    <script type="text/javascript">
+        window.setInterval(function () {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                // Check response and update element if successful.
+                if (this.readyState === 4 && this.status === 200) {
+                    document.getElementById('row-count').innerHTML = xhr.responseText;
+                    console.log('Updated!');
+                }
+            };
+            xhr.open('GET', 'http://fk150212.bkk.no:5555/api/table-count?table=FAKT_STROMLEVERANSE');
+            xhr.send();
+        }, 10000)
+    </script>
+</div>
