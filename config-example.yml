@@ -1,0 +1,10 @@
+DATABASE_CONFIG:
+  SERVICE_NAME: <some service name for oracle>
+  DB_USERNAME: <oracle username>
+  DB_PASSWORD: <password>
+  HOST: <database host endpoint>
+  PORT: <port number for endpoint>
+  TABLE_PREFIX: <table prefix/schema to ensure fully qualified table reference>
+
+SITE_CONFIG:
+  PORT: <port to run webserver on>
