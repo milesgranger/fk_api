@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-config.yml
-.idea
-.idea/*
 
 # Distribution / packaging
 .Python
@@ -102,4 +99,8 @@ ENV/
 /site
 
 # mypy
+<<<<<<< HEAD
 .mypy_cache/
+=======
+.mypy_cache/
+>>>>>>> 61c2fba19419f44da906e9e2547172df0a62dc9f
