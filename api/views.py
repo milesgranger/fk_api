@@ -1,23 +1,23 @@
-import os
-import yaml
 import cx_Oracle as oracle
 
-from flask import request, current_app, jsonify, abort
 from flask.views import MethodView
-
-with open(os.path.join(os.path.dirname(__file__), '..', 'config.yml'), encoding='utf-8') as f:
-    config = yaml.safe_load(f)
+from flask import request, current_app, jsonify, abort
 
 
 class TableCounter(MethodView):
-    """
-    View to provide a count of rows in a given table where the endpoint looks like this:
-    /api/table-count?table=<<name_of_table>>
-    Returns string of error or integer of row count
-    """
 
     # Forbid any requests other than GET
     methods = ['GET', ]
+
+    def __init__(self):
+        """
+        View to provide a count of rows in a given table where the endpoint looks like this:
+        /api/table-count?table=<<name_of_table>>
+        Returns string of error or integer of row count
+        """
+        super(TableCounter, self).__init__()
+        from app import config  # Import needs to be within class, otherwise causes conflict with app.app
+        self.config = config
 
     def get(self):
         """
@@ -26,20 +26,20 @@ class TableCounter(MethodView):
         data = request.args.to_dict()
         current_app.logger.info('Got request with args: {}'.format(data))
         if 'table' in [k.lower() for k in data.keys()]:
-            count = self.count_table_rows(data['table'])
+            count = self.count_table_rows(data['table'],
+                                          db_config=self.config.get('DATABASE_CONFIG')
+                                          )
             return jsonify(count)
         else:
             # Abort if not 'table' argument was provided.
             abort(404)
 
     @staticmethod
-    def count_table_rows(table):
+    def count_table_rows(table, db_config):
         """
         Count the rows in a give table
         """
-
-        # Get DB specific config dict and ensure the table name is the fully qualified version of it.
-        db_config = config.get('DATABASE_CONFIG')
+        # Ensure the table name is the fully qualified version of it.
         if not table.lower().startswith(db_config['TABLE_PREFIX']):
             table = '{}.{}'.format(db_config['TABLE_PREFIX'], table)
 
@@ -59,11 +59,11 @@ class TableCounter(MethodView):
         cursor = db.cursor()
 
         try:
-            cursor.execute('SELECT COUNT(*) AS ROW_COUNT FROM {}'.format(table))
+            cursor.execute('SELECT COUNT(*) AS ROW_COUNT FROM {table}'.format(table=table))
             result = cursor.fetchall()[0][0]
             return result
         except oracle.DatabaseError as exc:
-            current_app.logger.exception('Failed to execute query, perhaps {} does not exist: {}'.format(table, exc))
+            current_app.logger.exception('Failed to execute query, perhaps "{}" does not exist: {}'.format(table, exc))
             return 'N/A - Table might not exist: {}'.format(table)
         finally:
             cursor.close()
